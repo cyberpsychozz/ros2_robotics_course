@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR01",
+  "commit": "9d3ca81cdffeea5636080228a601e09916eb98ca",
+  "course_kit": {
+    "version": "v1-w03",
+    "archive_sha256": "7fbfd3e8161ab6c6ebefc7663efdaf77d9a7d490399743507f33dcefbd5ac522"
+  },
+  "commands": [
+    "source /opt/ros/jazzy/setup.bash; export ROS_DOMAIN_ID=67",
+    "ros2 run turtlesim turtlesim_node",
+    "ros2 run turtlesim turtle_teleop_key",
+    "ros2 doctor --report > evidence/pr01/doctor.txt 2>&1",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 topic list -t",
+    "ros2 node info /turtlesim",
+    "ros2 topic type /turtle1/pose",
+    "POSE_TYPE=$(ros2 topic type /turtle1/pose)",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 topic hz /turtle1/pose",
+    "export ROS_DOMAIN_ID=17; ros2 run turtlesim turtle_teleop_key",
+    "timeout 5s ros2 topic echo /turtle1/pose \"$POSE_TYPE\" --once > evidence/pr01/pose-broken.txt 2>&1",
+    "export ROS_DOMAIN_ID=67; ros2 run turtlesim turtle_teleop_key",
+    "timeout 5s ros2 topic echo /turtle1/pose \"$POSE_TYPE\" --once > evidence/pr01/pose-fixed.txt 2>&1"
+  ],
+  "tests": [
+    {
+      "name": "Исправный граф: обнаружены /turtlesim и /teleop_turtle, топики и типы записаны в graph.md",
+      "status": "passed"
+    },
+    {
+      "name": "Публикация /turtle1/pose: получено сообщение, средняя частота около 62,5 Гц",
+      "status": "passed"
+    },
+    {
+      "name": "Разрыв: в домене 17 не обнаружен /turtlesim, pose-broken.txt пуст, timeout завершился с кодом 124",
+      "status": "passed"
+    },
+    {
+      "name": "Восстановление: в домене 67 видны обе ноды, pose-fixed.txt содержит позу, код возврата 0",
+      "status": "passed"
+    },
+    {
+      "name": "Контракт PR01: python3 .course-kit/v1/tools/check_practice.py PR01 --submission .",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "reproducer": "Симулятор оставлен в ROS_DOMAIN_ID=67; teleop и CLI-подписчик перезапущены в 17. ros2 node list --no-daemon --spin-time 2 показал только /teleop_turtle; timeout 5s ros2 topic echo /turtle1/pose \"$POSE_TYPE\" --once завершился с exit=124, pose-broken.txt пуст.",
+    "root_cause": "Разные ROS_DOMAIN_ID изолируют обнаружение участников и обмен сообщениями. Изменение переменной оболочки не перенастраивает уже запущенную ноду.",
+    "proof_after": "Teleop и CLI-подписчик заново запущены в ROS_DOMAIN_ID=67 при работающем симуляторе в 67. Обнаружены /teleop_turtle и /turtlesim; та же проверка получила позу в pose-fixed.txt и завершилась с exit=0."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 1,
+    "self_study_hours": 1
+  },
+  "ai_used": true
+}

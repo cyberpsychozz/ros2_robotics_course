@@ -1,0 +1,15 @@
+{
+  "launch_method": "native",
+  "os": {
+    "name": "Ubuntu",
+    "version": "24.04.5 LTS"
+  },
+  "ros_distribution": "jazzy",
+  "gazebo_version": "8.15.0",
+  "rmw_implementation": "rmw_fastrtps_cpp",
+  "domains": {
+    "baseline": 67,
+    "isolated": 17,
+    "restored": 67
+  }
+}
