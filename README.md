@@ -1,4 +1,4 @@
-# ROS 2 Robotics Course — PR01
+# ROS 2 Robotics Course
 
 ПР01 исследует граф готовых нод `turtlesim` и проверяет изоляцию через `ROS_DOMAIN_ID`. Проверено на Ubuntu 24.04 и ROS 2 Jazzy. В этой работе ROS-пакет и собственная нода не создаются.
 
@@ -83,3 +83,36 @@ python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
 ```
 
 CI проверяет JSON и комплектность evidence. Поведение GUI и доставку сообщений подтверждают локальные наблюдения и демонстрация на защите.
+
+## ПР02: пакет `turtle_bringup`
+
+Работайте из корня репозитория. На Ubuntu 24.04 подключите ROS 2 Jazzy и задайте один домен во всех терминалах. Пакет содержит launch-файл для готовой ноды turtlesim, а не собственную ноду.
+
+```bash
+source /opt/ros/jazzy/setup.bash
+export ROS_DOMAIN_ID=67
+colcon build --symlink-install --packages-select turtle_bringup
+source install/setup.bash
+ros2 pkg prefix turtle_bringup
+ls "$(ros2 pkg prefix turtle_bringup)/share/turtle_bringup/launch"
+ros2 launch turtle_bringup sim.launch.py
+```
+
+Оставьте launch работающим в терминале A. В терминале B с тем же ROS и доменом проверьте `ros2 node list --no-daemon --spin-time 2` и начальную позу через `ros2 topic echo /turtle1/pose --once`. Отправьте команду движения:
+
+```bash
+ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist \
+  '{linear: {x: 1.0}, angular: {z: 0.5}}'
+ros2 topic echo /turtle1/pose --once
+```
+
+Для опыта с ошибкой запустите публикацию того же `Twist` в `/cmd_vel` с `--rate 1 --wait-matching-subscriptions 0`. Пока издатель работает, сравните `ros2 topic info /cmd_vel --verbose` и `ros2 topic info /turtle1/cmd_vel --verbose`. Остановите издателя через `Ctrl+C`, замените только имя топика на `/turtle1/cmd_vel` и повторите публикацию и проверку. Затем остановите издателя и launch через `Ctrl+C`.
+
+Наблюдения сохранены в `evidence/pr02/commands.md`, типы сообщений — в `evidence/pr02/types.md`. Локальная проверка:
+
+```bash
+python3 -m py_compile src/turtle_bringup/launch/sim.launch.py
+python3 .course-kit/v1/tools/check_practice.py PR02 --submission .
+```
+
+CI собирает пакет и проверяет установку launch-файла. Движение черепахи и остановку ноды через `Ctrl+C` проверяют локально.
