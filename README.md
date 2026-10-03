@@ -116,3 +116,38 @@ python3 .course-kit/v1/tools/check_practice.py PR02 --submission .
 ```
 
 CI собирает пакет и проверяет установку launch-файла. Движение черепахи и остановку ноды через `Ctrl+C` проверяют локально.
+
+## ПР03: пакет `patrol`
+
+Нода подписывается на `/turtle1/pose`, сохраняет последнюю позу и раз в `0.1` с публикует команду `Twist`. При отсутствии позы команда имеет нулевые скорости. Код издателя использует относительное имя `cmd_vel`, чтобы можно было показать разрыв графа и затем исправить его через remap.
+
+В каждом терминале подключите ROS 2 и используйте один `ROS_DOMAIN_ID`:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+export ROS_DOMAIN_ID=67
+```
+
+Из корня репозитория соберите оба пакета и подключите workspace:
+
+```bash
+colcon build --symlink-install --packages-select turtle_bringup patrol
+source install/setup.bash
+```
+
+Запустите `ros2 launch turtle_bringup sim.launch.py` в терминале A. В терминале B выполните `ros2 run patrol patrol`. Терминал C покажет, что у `/turtle1/cmd_vel` пока нет издателя: `ros2 topic info /turtle1/cmd_vel --verbose`. Остановите `patrol` через `Ctrl+C` и запустите его с правильным именем:
+
+```bash
+ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+```
+
+В терминале C повторите `ros2 topic info /turtle1/cmd_vel --verbose`, затем измеряйте `ros2 topic hz /turtle1/cmd_vel` не меньше 10 секунд. После остановки `patrol` дождитесь фактической остановки черепахи. Проверки кода и сдачи:
+
+```bash
+python3 -m pytest -q src/patrol/test/test_command.py
+colcon test --packages-select patrol --event-handlers console_direct+
+colcon test-result --verbose
+python3 .course-kit/v1/tools/check_practice.py PR03 --submission .
+```
+
+Выводы и наблюдения находятся в `evidence/pr03/demo.md`, результаты тестов — в `evidence/pr03/tests.txt`.
