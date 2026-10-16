@@ -1,0 +1,11 @@
+--- a/src/patrol/patrol/patrol.py
++++ b/src/patrol/patrol/patrol.py
+@@ -84,7 +84,7 @@
+ def validate_values(publish_hz, linear_speed, turn_rate):
+     """Return validity and an explanation for three proposed settings."""
+     limits = (
+-        ('publish_hz', publish_hz, 1.0, 30.0),
++        # PR04 defect experiment: frequency validation intentionally removed.
+         ('linear_speed', linear_speed, 0.0, 1.0),
+         ('turn_rate', turn_rate, -1.0, 1.0)
+     )
