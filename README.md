@@ -151,3 +151,71 @@ python3 .course-kit/v1/tools/check_practice.py PR03 --submission .
 ```
 
 Выводы и наблюдения находятся в `evidence/pr03/demo.md`, результаты тестов — в `evidence/pr03/tests.txt`.
+
+## ПР04: параметры работающей ноды
+
+Локальный опыт выполнен на Ubuntu 26.04.1 и ROS 2 Lyrical. CI использует
+зафиксированный выше образ Jazzy; импорт Pose поддерживает обе среды.
+В каждом терминале подключите ROS и workspace и задайте одинаковый домен:
+
+```bash
+source /opt/ros/lyrical/setup.bash
+export ROS_DOMAIN_ID=67
+colcon build --symlink-install --packages-select turtle_bringup patrol
+source install/setup.bash
+```
+
+В терминале A запустите симулятор (для данной системы нужна настройка Qt):
+
+```bash
+env -u XDG_CURRENT_DESKTOP -u DESKTOP_SESSION \
+  QT_QPA_PLATFORMTHEME=none QT_STYLE_OVERRIDE=Fusion QT_QPA_PLATFORM=xcb \
+  ros2 launch turtle_bringup sim.launch.py
+```
+
+В терминале B выполните `ros2 run patrol patrol`. Текущий издатель уже использует
+`turtle1/cmd_vel`; дополнительный remap не нужен. В терминале C:
+
+```bash
+ros2 param get /patrol publish_hz
+ros2 topic hz /turtle1/cmd_vel
+# Завершите измерение Ctrl+C, затем:
+ros2 param set /patrol publish_hz 5.0
+ros2 topic hz /turtle1/cmd_vel
+# Снова Ctrl+C, затем:
+ros2 param set /patrol publish_hz 0.0
+ros2 param get /patrol publish_hz
+ros2 topic hz /turtle1/cmd_vel
+```
+
+Частота меняется с 10 до 5 Гц. Ноль отклоняется; параметр остаётся 5.0 и поток
+продолжает идти с частотой 5 Гц. `on-set` проверяет весь предложенный набор,
+`post-set` обновляет поля после принятия; таймер заменяется только при смене
+частоты. Значения при запуске также проверяются до создания таймера.
+
+Для повторения записанного опыта автоматически, в отдельном домене 174:
+
+```bash
+python3 tools/record_pr04.py --source . --output /tmp/pr04-repeat.md
+```
+
+Ветка `codex/pr04-frequency-defect` сохраняет намеренный дефект: проверка частоты
+отключена, поэтому после установки нуля возникает `ZeroDivisionError`.
+Исходники этой ветки можно открыть в отдельной рабочей копии, передать её путь
+в `--source` и добавить `--expect-broken` к сценарию. Он запускает собственные
+patrol/turtlesim, записывает настоящий вывод и завершает свои процессы в конце.
+
+Проверки реализации и отчёта:
+
+```bash
+export ROS_DOMAIN_ID=175
+python3 -m pytest src/patrol/test
+colcon test --packages-select patrol --event-handlers console_direct+
+colcon test-result --verbose
+python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
+```
+
+Команды, измерения и сравнение запроса сервиса с целью действия сохранены в
+`evidence/pr04/parameters.md`; итоги проверок — в `evidence/pr04/tests.txt`.
+Для PR04 локально и в CI используется course kit `v1-w06` с зафиксированными
+URL и SHA-256 из workflow. Предыдущие отчёты относятся к своим версиям комплекта.
