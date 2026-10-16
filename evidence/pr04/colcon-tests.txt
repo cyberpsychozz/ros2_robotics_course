@@ -1,0 +1,20 @@
+Starting >>> patrol
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0
+cachedir: /home/cyberpsychoz/ros2_robotics_course/build/patrol/.pytest_cache
+rootdir: /home/cyberpsychoz/ros2_robotics_course/src/patrol
+plugins: ament_pep257-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_xmllint-0.20.6, launch_testing_ros-0.29.9, ament_mypy-0.20.6, ament_copyright-0.20.6, launch_testing-3.9.8, cov-5.0.0, typeguard-4.4.4, colcon-core-0.21.3
+collected 42 items
+
+test/test_command.py ..                                                  [  4%]
+test/test_copyright.py s                                                 [  7%]
+test/test_flake8.py .                                                    [  9%]
+test/test_node_parameters.py .......                                     [ 26%]
+test/test_parameters.py ..............................                   [ 97%]
+test/test_pep257.py .                                                    [100%]
+
+- generated xml file: /home/cyberpsychoz/ros2_robotics_course/build/patrol/pytest.xml -
+======================== 41 passed, 1 skipped in 0.72s =========================
+Finished <<< patrol [1.47s]
+
+Summary: 1 package finished [1.61s]

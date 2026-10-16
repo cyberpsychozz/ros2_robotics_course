@@ -1,0 +1,53 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_rejected_frequency_preserves_parameter_and_timer[0.0] __________
+
+node = <patrol.patrol.Patrol object at 0x7bf4f960c830>, hz = 0.0
+
+    @pytest.mark.parametrize('hz', [0.0, -1.0, float('nan')])
+    def test_rejected_frequency_preserves_parameter_and_timer(node, hz):
+        """Keep the accepted 5 Hz parameter and timer after an invalid proposal."""
+        assert node.set_parameters_atomically([
+            Parameter('publish_hz', value=5.0)]).successful
+        old_timer = node.timer
+>       result = node.set_parameters_atomically([Parameter('publish_hz', value=hz)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/tmp/ros2-pr04-defect/src/patrol/test/test_node_parameters.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:820: in set_parameters_atomically
+    return self._set_parameters_atomically(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:840: in _set_parameters_atomically
+    return self._set_parameters_atomically_common(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:944: in _set_parameters_atomically_common
+    self._call_post_set_parameters_callback(parameter_list)
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:1038: in _call_post_set_parameters_callback
+    callback(parameter_list)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <patrol.patrol.Patrol object at 0x7bf4f960c830>
+updates = [<rclpy.parameter.Parameter object at 0x7bf4f96651d0>]
+
+    def apply(self, updates):
+        """Apply accepted values and replace the timer only when needed."""
+        changed = {p.name: p.value for p in updates}
+    
+        old_hz = self.publish_hz
+    
+        self.linear_speed = changed.get('linear_speed', self.linear_speed)
+        self.turn_rate = changed.get('turn_rate', self.turn_rate)
+        self.publish_hz = changed.get('publish_hz', self.publish_hz)
+    
+        if self.publish_hz != old_hz:
+            self.timer.cancel()
+            self.destroy_timer(self.timer)
+>           self.timer = self.create_timer(1.0 / self.publish_hz, self.tick)
+                                           ^^^^^^^^^^^^^^^^^^^^^
+E           ZeroDivisionError: division by zero
+
+/tmp/ros2-pr04-defect/src/patrol/patrol/patrol.py:81: ZeroDivisionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/ros2-pr04-defect/src/patrol/test/test_node_parameters.py::test_rejected_frequency_preserves_parameter_and_timer[0.0]
+1 failed in 0.40s

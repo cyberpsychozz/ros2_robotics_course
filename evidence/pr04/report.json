@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR04",
+  "commit": "cd444300c55c671904826fe01e9e504f47f36509",
+  "course_kit": {
+    "version": "v1-w06",
+    "archive_sha256": "6eda53e1c566f7f0a7e09d7afe1e5a6f3b98397175a7e57dede9a84c6d14d0fe",
+    "archive_url": "https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w06-6eda53e1c566.tar.gz"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "experiment_date": "2026-10-17",
+    "timezone": "Asia/Novosibirsk",
+    "experiment_ros_domain_id": 174,
+    "test_ros_domain_id": 175,
+    "operator": "Codex по поручению автора; реальные локальные ROS-процессы и CLI"
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "colcon build --symlink-install --packages-select turtle_bringup patrol",
+    "source install/setup.bash",
+    "python3 -m pytest src/patrol/test -q",
+    "python3 -m pytest src/patrol/test/test_parameters.py -v",
+    "python3 -m pytest 'src/patrol/test/test_node_parameters.py::test_rejected_frequency_preserves_parameter_and_timer[0.0]' -q",
+    "colcon test --packages-select patrol --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "python3 tools/record_pr04.py --source /tmp/ros2-pr04-defect --expect-broken --output evidence/pr04/broken-commands.md",
+    "python3 tools/record_pr04.py --source . --output evidence/pr04/fixed-commands.md",
+    "ros2 param get /patrol publish_hz",
+    "ros2 param set /patrol publish_hz 5.0",
+    "ros2 param set /patrol publish_hz 0.0",
+    "ros2 topic hz /turtle1/cmd_vel",
+    "ros2 param set /patrol linear_speed 0.8",
+    "ros2 param set /patrol turn_rate -0.5",
+    "ros2 topic echo /turtle1/cmd_vel --once",
+    "ros2 topic type /turtle1/pose",
+    "ros2 service call /clear std_srvs/srv/Empty '{}'",
+    "ros2 action list -t",
+    "python3 .course-kit/v1/tools/check_practice.py PR04 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "pytest: 41 passed, 1 skipped; чистая функция, команды, нода, lint",
+      "status": "passed"
+    },
+    {
+      "name": "Чистая функция: 10 и 5 Гц, 0, отрицательная частота, NaN, бесконечности, границы и типы — 30 тестов",
+      "status": "passed"
+    },
+    {
+      "name": "Тот же регрессионный тест нулевой частоты: ZeroDivisionError в ветке дефекта, passed после восстановления",
+      "status": "passed"
+    },
+    {
+      "name": "Реальный поток: около 10 Гц, затем около 5 Гц; после отклонённого 0 параметр 5.0 и поток около 5 Гц",
+      "status": "passed"
+    },
+    {
+      "name": "Изменение скоростей подтверждено сообщением Twist: linear.x=0.8, angular.z=-0.5",
+      "status": "passed"
+    },
+    {
+      "name": "colcon: сборка двух пакетов; 42 теста, 0 ошибок, 0 провалов, 1 пропущен",
+      "status": "passed"
+    },
+    {
+      "name": "Шаблонный copyright-тест пропущен существующим декоратором: нет авторских заголовков",
+      "status": "skipped"
+    },
+    {
+      "name": "/clear вернул Empty_Response; найден /turtle1/rotate_absolute [turtlesim_msgs/action/RotateAbsolute]",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "branch": "codex/pr04-frequency-defect",
+    "commit": "bef5b95798d36d6077f178f0d3eaeb60d2856ad9",
+    "reproducer": "В отдельном коммите убрана строка ограничения publish_hz из validate_values. После успешной смены 10→5 команда ros2 param set /patrol publish_hz 0.0 завершает patrol с ZeroDivisionError. Тот же регрессионный тест падает на делении 1.0 / self.publish_hz. Настоящие логи: broken-commands.md, broken-commands-patrol.txt, regression-before.txt.",
+    "root_cause": "Без предварительной проверки ноль принимается как параметр. post-set обновляет поле частоты, останавливает и удаляет старый таймер, затем делит на ноль при создании нового, разрушая активное состояние и завершая процесс.",
+    "proof_after": "Проверка конечного числа в диапазоне 1–30 восстановлена в on-set. Та же команда отклоняется с причиной; get возвращает 5.0 и topic hz показывает около 5 Гц. Тот же тест проходит, проверяя идентичность старого таймера, период 200000000 нс и отсутствие отмены. Логи: fixed-commands.md и regression-after.txt."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "ai_used": true,
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2,
+    "basis": "Норматив из условия ПР04: одна лабораторная пара и примерно 2 часа самостоятельной доработки. Это не измеренные фактические затраты автора; они не предоставлены и требуют уточнения."
+  }
+}

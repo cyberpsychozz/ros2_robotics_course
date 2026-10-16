@@ -1,0 +1,20 @@
+[INFO] [launch]: All log files can be found below /tmp/pr04-ros-logs/2026-10-17-00-49-04-669106-ROG-369435
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [turtlesim_node-1]: process started with pid [369520]
+[turtlesim_node-1] [INFO] [1792172944.823381289] [turtlesim]: Starting turtlesim with node name /turtlesim
+[turtlesim_node-1] [INFO] [1792172944.827849252] [turtlesim]: Spawning turtle [turtle1] at x=[5.544445], y=[5.544445], theta=[0.000000]
+[turtlesim_node-1] [INFO] [1792172977.653271168] [turtlesim]: Clearing turtlesim.
+[turtlesim_node-1] [WARN] [1792172978.324556974] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.052364, y=-0.006894])
+[turtlesim_node-1] [WARN] [1792172978.340923142] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.057829, y=-0.011574])
+[turtlesim_node-1] [WARN] [1792172978.356792356] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.063387, y=-0.011530])
+[turtlesim_node-1] [WARN] [1792172978.372588957] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.069038, y=-0.011485])
+[turtlesim_node-1] [WARN] [1792172978.388311212] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.074779, y=-0.011440])
+[turtlesim_node-1] [WARN] [1792172978.404414206] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.080613, y=-0.011394])
+[turtlesim_node-1] [WARN] [1792172978.420773813] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.086537, y=-0.011347])
+[turtlesim_node-1] [WARN] [1792172978.436331252] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.092552, y=-0.011299])
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[turtlesim_node-1] [INFO] [1792172978.452432466] [rclcpp]: signal_handler(signum=2)
+[turtlesim_node-1] [WARN] [1792172978.452516634] [turtlesim]: Oh no! I hit the wall! (Clamping from [x=5.098657, y=-0.011250])
+[INFO] [turtlesim_node-1]: sending signal 'SIGINT' to process[turtlesim_node-1]
+[turtlesim_node-1] [INFO] [1792172978.454501518] [rclcpp]: signal_handler(signum=2)
+[INFO] [turtlesim_node-1]: process has finished cleanly [pid 369520]

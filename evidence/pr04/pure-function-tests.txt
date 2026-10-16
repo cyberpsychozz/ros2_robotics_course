@@ -1,0 +1,39 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/cyberpsychoz/ros2_robotics_course/src/patrol
+plugins: ament_pep257-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_xmllint-0.20.6, launch_testing_ros-0.29.9, ament_mypy-0.20.6, ament_copyright-0.20.6, launch_testing-3.9.8, cov-5.0.0, typeguard-4.4.4, colcon-core-0.21.3
+collecting ... collected 30 items
+
+src/patrol/test/test_parameters.py::test_valid_frequency[10.0] PASSED    [  3%]
+src/patrol/test/test_parameters.py::test_valid_frequency[5.0] PASSED     [  6%]
+src/patrol/test/test_parameters.py::test_valid_frequency[1.0] PASSED     [ 10%]
+src/patrol/test/test_parameters.py::test_valid_frequency[30.0] PASSED    [ 13%]
+src/patrol/test/test_parameters.py::test_outside_range[0-publish_hz-invalid_values0] PASSED [ 16%]
+src/patrol/test/test_parameters.py::test_outside_range[1-linear_speed-invalid_values1] PASSED [ 20%]
+src/patrol/test/test_parameters.py::test_outside_range[2-turn_rate-invalid_values2] PASSED [ 23%]
+src/patrol/test/test_parameters.py::test_nonfinite[nan-0] PASSED         [ 26%]
+src/patrol/test/test_parameters.py::test_nonfinite[nan-1] PASSED         [ 30%]
+src/patrol/test/test_parameters.py::test_nonfinite[nan-2] PASSED         [ 33%]
+src/patrol/test/test_parameters.py::test_nonfinite[inf-0] PASSED         [ 36%]
+src/patrol/test/test_parameters.py::test_nonfinite[inf-1] PASSED         [ 40%]
+src/patrol/test/test_parameters.py::test_nonfinite[inf-2] PASSED         [ 43%]
+src/patrol/test/test_parameters.py::test_nonfinite[-inf-0] PASSED        [ 46%]
+src/patrol/test/test_parameters.py::test_nonfinite[-inf-1] PASSED        [ 50%]
+src/patrol/test/test_parameters.py::test_nonfinite[-inf-2] PASSED        [ 53%]
+src/patrol/test/test_parameters.py::test_nonnumeric[0-True] PASSED       [ 56%]
+src/patrol/test/test_parameters.py::test_nonnumeric[0-False] PASSED      [ 60%]
+src/patrol/test/test_parameters.py::test_nonnumeric[0-5.0] PASSED        [ 63%]
+src/patrol/test/test_parameters.py::test_nonnumeric[0-None] PASSED       [ 66%]
+src/patrol/test/test_parameters.py::test_nonnumeric[1-True] PASSED       [ 70%]
+src/patrol/test/test_parameters.py::test_nonnumeric[1-False] PASSED      [ 73%]
+src/patrol/test/test_parameters.py::test_nonnumeric[1-5.0] PASSED        [ 76%]
+src/patrol/test/test_parameters.py::test_nonnumeric[1-None] PASSED       [ 80%]
+src/patrol/test/test_parameters.py::test_nonnumeric[2-True] PASSED       [ 83%]
+src/patrol/test/test_parameters.py::test_nonnumeric[2-False] PASSED      [ 86%]
+src/patrol/test/test_parameters.py::test_nonnumeric[2-5.0] PASSED        [ 90%]
+src/patrol/test/test_parameters.py::test_nonnumeric[2-None] PASSED       [ 93%]
+src/patrol/test/test_parameters.py::test_speed_boundaries[0.0--1.0] PASSED [ 96%]
+src/patrol/test/test_parameters.py::test_speed_boundaries[1.0-1.0] PASSED [100%]
+
+============================== 30 passed in 0.34s ==============================
