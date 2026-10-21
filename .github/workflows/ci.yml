@@ -1,4 +1,4 @@
-name: PR04 evidence
+name: PR05 evidence
 
 on:
   push:
@@ -32,11 +32,14 @@ jobs:
         run: |
           source /opt/ros/jazzy/setup.bash
           export ROS_DOMAIN_ID=174
-          colcon build --symlink-install --packages-select turtle_bringup patrol
+          colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup
           source install/setup.bash
           test -f "$(ros2 pkg prefix turtle_bringup)/share/turtle_bringup/launch/sim.launch.py"
+          test -f "$(ros2 pkg prefix course_bringup)/share/course_bringup/launch/sim.launch.py"
+          test -f "$(ros2 pkg prefix course_bringup)/share/course_bringup/config/patrol.yaml"
           python3 -m py_compile src/turtle_bringup/launch/sim.launch.py
-          colcon test --packages-select patrol --event-handlers console_direct+
+          python3 -m py_compile src/course_bringup/launch/sim.launch.py src/course_bringup/course_bringup/pose_relay.py src/course_bringup/course_bringup/pose_subscriber.py
+          colcon test --packages-select patrol course_bringup --event-handlers console_direct+
           colcon test-result --verbose
       - name: Download course kit
         shell: bash
@@ -45,6 +48,6 @@ jobs:
           printf '%s  %s\n' "$COURSE_KIT_SHA256" course-kit.tar.gz | sha256sum -c -
           mkdir -p .course-kit
           tar -xzf course-kit.tar.gz -C .course-kit
-      - name: Check PR04 evidence
+      - name: Check PR05 evidence
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
+        run: python3 .course-kit/v1/tools/check_practice.py PR05 --submission .

@@ -219,3 +219,58 @@ python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
 `evidence/pr04/parameters.md`; итоги проверок — в `evidence/pr04/tests.txt`.
 Для PR04 локально и в CI используется course kit `v1-w06` с зафиксированными
 URL и SHA-256 из workflow. Предыдущие отчёты относятся к своим версиям комплекта.
+
+## ПР05: launch, QoS и повтор записи
+
+`course_bringup` запускает глобальный `turtlesim` и ноды `patrol`, `pose_relay`,
+`pose_subscriber` в `/robot_a`. `pose_relay` читает `/turtle1/pose` и предлагает
+`/robot_a/sensor_pose` с QoS `best_effort`. Выход `patrol` переназначен на
+`/turtle1/cmd_vel`. Исходный YAML параметров —
+`src/course_bringup/config/patrol.yaml`; профиль издателя при replay —
+`config/qos-overrides.yaml`.
+
+В каждом терминале подключите одну и ту же среду ROS и workspace. Локально
+проверено с ROS 2 Lyrical; в CI используется Jazzy:
+
+```bash
+source /opt/ros/lyrical/setup.bash
+colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup
+source install/setup.bash
+ros2 launch course_bringup sim.launch.py subscriber_reliability:=reliable record:=false
+```
+
+Нода-подписчик сообщает о несовместимой `RELIABILITY` и не получает позу.
+Остановите launch через `Ctrl+C` и повторите с
+`subscriber_reliability:=best_effort`: в логе появится `First pose received`.
+Аргумент `namespace` меняет пространство имён; `params_file` принимает иной YAML.
+Для условной записи укажите свободный каталог:
+
+```bash
+ros2 launch course_bringup sim.launch.py \
+  subscriber_reliability:=best_effort record:=true \
+  bag_dir:=evidence/pr05/bag-new
+```
+
+После нескольких секунд остановите launch через `Ctrl+C`, чтобы recorder
+закрыл MCAP. Для проверки сохранённого bag сначала остановите живую систему.
+В терминале A запустите только подписчик с `reliable`, затем в B проиграйте bag:
+
+```bash
+ros2 run course_bringup pose_subscriber --ros-args \
+  -r __ns:=/robot_a -p subscriber_reliability:=reliable
+```
+
+```bash
+ros2 bag play evidence/pr05/bag \
+  --qos-profile-overrides-path config/qos-overrides.yaml
+```
+
+Снова нет сообщения. Остановите подписчик, запустите его с
+`subscriber_reliability:=best_effort` и повторно проиграйте **тот же** bag:
+первое сообщение будет получено. Диагностика двух режимов и живого потока —
+в `evidence/pr05/qos-before.txt` и `qos-after.txt`; метаданные MCAP — в
+`evidence/pr05/bag-metadata.yaml`. Отчёт проверяется командой:
+
+```bash
+python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
+```

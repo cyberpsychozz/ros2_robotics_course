@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    publish_hz: 10.0
+    linear_speed: 0.5
+    turn_rate: 0.3
