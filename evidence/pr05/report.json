@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR05",
+  "commit": "66e410c4c3ed8ddf2bdcf971bcee00c3ee015174",
+  "course_kit": {
+    "version": "v1-w06",
+    "archive_sha256": "6eda53e1c566f7f0a7e09d7afe1e5a6f3b98397175a7e57dede9a84c6d14d0fe",
+    "archive_url": "https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w06-6eda53e1c566.tar.gz"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "experiment_date": "2026-10-21",
+    "timezone": "Asia/Novosibirsk",
+    "live_ros_domain_id": 205,
+    "replay_ros_domain_id": 204,
+    "conditional_record_ros_domain_id": 208,
+    "operator": "Автор записал исходный MCAP и CLI-наблюдения; Codex по поручению автора выполнил изолированные проверки нод, QoS и повтор той же записи"
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup",
+    "source install/setup.bash",
+    "ros2 launch course_bringup sim.launch.py subscriber_reliability:=reliable record:=false",
+    "ros2 launch course_bringup sim.launch.py subscriber_reliability:=best_effort record:=false",
+    "ros2 topic info /robot_a/sensor_pose --verbose",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once",
+    "ros2 run course_bringup pose_subscriber --ros-args -r __ns:=/robot_a -p subscriber_reliability:=reliable",
+    "ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml",
+    "ros2 run course_bringup pose_subscriber --ros-args -r __ns:=/robot_a -p subscriber_reliability:=best_effort",
+    "ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml",
+    "ros2 launch course_bringup sim.launch.py subscriber_reliability:=best_effort record:=true bag_dir:=/tmp/pr05-conditional-bag-final",
+    "ros2 bag info evidence/pr05/bag",
+    "python3 -m pytest test -q -k 'not test_flake8' (из src/patrol и src/course_bringup)",
+    "python3 -m flake8 --jobs=1 --config=/opt/ros/lyrical/lib/python3.14/site-packages/ament_flake8/configuration/ament_flake8.ini src/course_bringup src/patrol",
+    "python3 .course-kit/v1/tools/check_practice.py PR05 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "colcon build: turtle_bringup, patrol и course_bringup собраны",
+      "status": "passed"
+    },
+    {
+      "name": "Локальные тесты patrol: 40 passed, 1 skipped; flake8 проверен отдельно из-за ограничения sandbox на дочерние процессы",
+      "status": "passed"
+    },
+    {
+      "name": "Локальные тесты course_bringup: mypy, pep257, xmllint — 3 passed, 1 skipped; flake8 обоих пакетов проверен отдельно с jobs=1",
+      "status": "passed"
+    },
+    {
+      "name": "Живой поток: reliable-подписчик получил incompatible RELIABILITY без сообщения; best_effort-подписчик получил Pose",
+      "status": "passed"
+    },
+    {
+      "name": "Повтор одного и того же MCAP: reliable-подписчик не получил Pose, best_effort-подписчик получил Pose; оба воспроизведения завершились с кодом 0",
+      "status": "passed"
+    },
+    {
+      "name": "Условный recorder: record=false не запускает пятый процесс; record=true создал MCAP с одним топиком и 472 сообщениями после штатного SIGINT",
+      "status": "passed"
+    },
+    {
+      "name": "Исходный MCAP: один топик /robot_a/sensor_pose, 482 сообщения за 7.696 секунды; metadata показывает best_effort",
+      "status": "passed"
+    }
+  ],
+  "bag": {
+    "path": "evidence/pr05/bag",
+    "topic": "/robot_a/sensor_pose",
+    "message_count": 482,
+    "mcap_sha256": "01e47fd02d097c641a731a96065f5bacea521643d509177fcb5e3a235b9e1da4"
+  },
+  "defect": {
+    "reproducer": "На живом /robot_a/sensor_pose и при повторе того же MCAP подписчик с subscriber_reliability:=reliable видит издателя, но получает предупреждение о несовместимой RELIABILITY и не вызывает on_pose.",
+    "root_cause": "pose_relay и replay-издатель предлагают best_effort, а reliable-подписчик запрашивает более строгую гарантию доставки.",
+    "proof_after": "При смене только требования подписчика на best_effort появляется First pose received на живом потоке и на повторе того же MCAP с тем же SHA-256. Издатель и входная запись не менялись."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true,
+    "replay_verified": true
+  },
+  "ai_used": true,
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2,
+    "basis": "Фактические затраты сообщил автор; время автоматизированных проверок агента не включено."
+  }
+}

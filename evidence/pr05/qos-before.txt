@@ -1,0 +1,21 @@
+╭─cyberpsychoz@ROG ~  v3.14.4 1s
+╰─❯ timeout 3s ros2 topic echo /robot_a/sensor_pose \
+  --qos-reliability reliable --once
+[WARN] [1792578629.150616028] [_ros2cli_118213]: New publisher discovered on topic '/robot_a/sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+!rclpy.ok()
+
+=== Собственный подписчик, живой поток (изолированный ROS_DOMAIN_ID=205) ===
+Команда: ros2 launch course_bringup sim.launch.py subscriber_reliability:=reliable record:=false
+Наблюдение за 8 секунд:
+[robot_a.pose_subscriber]: Subscribing to sensor_pose with reliable
+[robot_a.pose_subscriber]: New publisher discovered on topic 'sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+Строки "First pose received" нет. Процесс остановлен по окончании окна наблюдения.
+
+=== Тот же MCAP, повтор записи (изолированный ROS_DOMAIN_ID=204) ===
+Команда подписчика: ros2 run course_bringup pose_subscriber --ros-args -r __ns:=/robot_a -p subscriber_reliability:=reliable
+Команда повтора: ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml
+Наблюдение:
+[robot_a.pose_subscriber]: Subscribing to sensor_pose with reliable
+[robot_a.pose_subscriber]: New publisher discovered on topic 'sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+Воспроизведение завершилось с кодом 0; строки "First pose received" нет.
+SHA-256 использованного MCAP: 01e47fd02d097c641a731a96065f5bacea521643d509177fcb5e3a235b9e1da4
