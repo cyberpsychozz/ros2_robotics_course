@@ -1,4 +1,4 @@
-from launch import LaunchDescription
+from launch import LaunchDescription  # type: ignore[attr-defined]
 from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
