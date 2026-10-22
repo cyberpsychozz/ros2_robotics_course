@@ -1,0 +1,76 @@
+# Итоговая локальная проверка ПР06, ROS 2 Lyrical, Python 3.14.4
+# ROS_DOMAIN_ID=222; ROS_LOG_DIR=/tmp/pr06-final-logs
+# Команды из корня репозитория после source /opt/ros/lyrical/setup.bash
+
+## colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup course_description
+Starting >>> patrol
+Starting >>> course_description
+Starting >>> turtle_bringup
+Finished <<< turtle_bringup [2.09s]
+Finished <<< course_description [2.11s]
+Finished <<< patrol [2.52s]
+Starting >>> course_bringup
+Finished <<< course_bringup [2.07s]
+
+Summary: 4 packages finished [4.81s]
+
+## source install/setup.bash
+## colcon test --packages-select patrol course_bringup course_description --event-handlers console_direct+
+Starting >>> patrol
+Starting >>> course_description
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0
+cachedir: /home/cyberpsychoz/ros2_robotics_course/build/patrol/.pytest_cache
+rootdir: /home/cyberpsychoz/ros2_robotics_course/src/patrol
+plugins: ament_pep257-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_xmllint-0.20.6, launch_testing_ros-0.29.9, ament_mypy-0.20.6, ament_copyright-0.20.6, launch_testing-3.9.8, cov-5.0.0, typeguard-4.4.4, colcon-core-0.21.3
+collected 42 items
+
+test/test_command.py ..                                                  [  4%]
+test/test_copyright.py s                                                 [  7%]
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0
+cachedir: /home/cyberpsychoz/ros2_robotics_course/build/course_description/.pytest_cache
+rootdir: /home/cyberpsychoz/ros2_robotics_course/src/course_description
+plugins: ament_pep257-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_xmllint-0.20.6, launch_testing_ros-0.29.9, ament_mypy-0.20.6, ament_copyright-0.20.6, launch_testing-3.9.8, cov-5.0.0, typeguard-4.4.4, colcon-core-0.21.3
+collected 6 items
+
+test/test_copyright.py s                                                 [ 16%]
+test/test_flake8.py .                                                    [ 33%]
+test/test_frames.py .                                                    [ 50%]
+test/test_flake8.py .                                                    [  9%]
+test/test_node_parameters.py .......                                     [ 26%]
+test/test_parameters.py ..............................                   [ 97%]
+test/test_pep257.py .                                                    [100%]
+
+- generated xml file: /home/cyberpsychoz/ros2_robotics_course/build/patrol/pytest.xml -
+======================== 41 passed, 1 skipped in 1.18s =========================
+Finished <<< patrol [2.24s]
+Starting >>> course_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0
+cachedir: /home/cyberpsychoz/ros2_robotics_course/build/course_bringup/.pytest_cache
+rootdir: /home/cyberpsychoz/ros2_robotics_course/src/course_bringup
+plugins: ament_pep257-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_xmllint-0.20.6, launch_testing_ros-0.29.9, ament_mypy-0.20.6, ament_copyright-0.20.6, launch_testing-3.9.8, cov-5.0.0, typeguard-4.4.4, colcon-core-0.21.3
+collected 5 items
+
+test/test_copyright.py s                                                 [ 20%]
+test/test_flake8.py .                                                    [ 40%]
+test/test_mypy.py .                                                      [ 66%]
+test/test_pep257.py .                                                    [ 83%]
+test/test_mypy.py .                                                      [ 60%]
+test/test_pep257.py .                                                    [ 80%]
+test/test_xmllint.py .                                                   [100%]
+
+- generated xml file: /home/cyberpsychoz/ros2_robotics_course/build/course_description/pytest.xml -
+========================= 5 passed, 1 skipped in 8.55s =========================
+test/test_xmllint.py .                                                   [100%]
+
+- generated xml file: /home/cyberpsychoz/ros2_robotics_course/build/course_bringup/pytest.xml -
+========================= 4 passed, 1 skipped in 7.80s =========================
+Finished <<< course_description [14.6s]
+Finished <<< course_bringup [13.5s]
+
+Summary: 3 packages finished [16.0s]
+
+## colcon test-result --verbose
+Summary: 53 tests, 0 errors, 0 failures, 3 skipped

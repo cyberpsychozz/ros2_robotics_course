@@ -1,0 +1,71 @@
+Broken implementation: 71a696ee71a7970230438cf308c305f8aa1d9461
+Author fixed implementation: 7b073e18901b6bae3c0c092caa4e9e2c8ac52737
+## Same parent test against committed broken model
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________________________ test_lidar_parent _______________________________
+
+    def test_lidar_parent():
+        """The lidar must be attached directly to the chassis."""
+        model = (
+            Path(__file__).resolve().parents[1]
+            / 'urdf'
+            / 'ackerman_robot.urdf.xacro'
+        )
+        document = xacro.process_file(str(model))
+        robot = ET.fromstring(document.toxml())
+    
+        joint = robot.find("./joint[@name='lidar_joint']")
+        assert joint is not None, 'Missing lidar_joint'
+    
+        parent = joint.find('parent')
+        assert parent is not None, 'Missing lidar parent'
+>       assert parent.get('link') == 'base_link'
+E       AssertionError: assert 'camera_link' == 'base_link'
+E         
+E         - base_link
+E         + camera_link
+
+test/test_frames.py:24: AssertionError
+=========================== short test summary info ============================
+FAILED test/test_frames.py::test_lidar_parent - AssertionError: assert 'camer...
+1 failed in 0.05s
+
+exit=1
+## check_urdf broken
+robot name is: ackerman_robot
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 6 child(ren)
+    child(1):  camera_link
+        child(1):  lidar_link
+    child(2):  front_left_knuckle
+        child(1):  front_left_wheel
+    child(3):  front_right_knuckle
+        child(1):  front_right_wheel
+    child(4):  imu_link
+    child(5):  rear_left_wheel
+    child(6):  rear_right_wheel
+
+exit=0
+## Live TF broken: base_link -> lidar_link
+translation=(0.56, 0.0, 0.76); expected=(0.56, 0.0, 0.76)
+PASS
+## check_urdf fixed
+robot name is: ackerman_robot
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 7 child(ren)
+    child(1):  camera_link
+    child(2):  front_left_knuckle
+        child(1):  front_left_wheel
+    child(3):  front_right_knuckle
+        child(1):  front_right_wheel
+    child(4):  imu_link
+    child(5):  lidar_link
+    child(6):  rear_left_wheel
+    child(7):  rear_right_wheel
+
+exit=0
+## Live TF fixed: base_link -> lidar_link
+translation=(0.28, 0.0, 0.38); expected=(0.28, 0.0, 0.38)
+PASS
+PASS: defect reproduced from committed model; fixed model restores expected transform.

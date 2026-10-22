@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR06",
+  "commit": "9a4f73b1dcfc0fc36d93c12fd842962a5a98d6ea",
+  "course_kit": {
+    "version": "v1-w06",
+    "archive_sha256": "6eda53e1c566f7f0a7e09d7afe1e5a6f3b98397175a7e57dede9a84c6d14d0fe",
+    "archive_url": "https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w06-6eda53e1c566.tar.gz"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "experiment_date": "2026-10-23",
+    "timezone": "Asia/Novosibirsk",
+    "agent_defect_ros_domain_id": 221,
+    "agent_final_tests_ros_domain_id": 222,
+    "operator": "Автор выполнил исходные QoS/TF-опыты, просмотр модели и три коммита опыта. Codex оформил отчёт и выполнил дополнительные настоящие проверки в отдельных ROS-доменах."
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup course_description",
+    "source install/setup.bash",
+    "ros2 launch course_description display.launch.py",
+    "ros2 launch course_description display.launch.py rviz:=false",
+    "ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState '{header: auto, name: [front_left_steering_joint, front_right_steering_joint, front_left_wheel_joint, front_right_wheel_joint, rear_left_wheel_joint, rear_right_wheel_joint], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'",
+    "ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "ros2 run tf2_tools view_frames",
+    "ros2 topic info /tf_static --verbose",
+    "timeout 4s ros2 topic echo /tf_static --once --qos-reliability reliable --qos-durability transient_local",
+    "timeout 4s ros2 topic echo /tf_static --once --qos-reliability reliable --qos-durability volatile",
+    "xacro src/course_description/urdf/ackerman_robot.urdf.xacro -o /tmp/vehicle.urdf",
+    "check_urdf /tmp/vehicle.urdf",
+    "python3 -m pytest -q src/course_description/test/test_frames.py",
+    "colcon test --packages-select patrol course_bringup course_description --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "python3 .course-kit/v1/tools/check_practice.py PR06 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "Сборка turtle_bringup, patrol, course_bringup, course_description",
+      "status": "passed"
+    },
+    {
+      "name": "course_description: 5 passed, 1 skipped; parent test, flake8, mypy, pep257, xmllint",
+      "status": "passed"
+    },
+    {
+      "name": "patrol: 41 passed, 1 skipped; course_bringup: 4 passed, 1 skipped",
+      "status": "passed"
+    },
+    {
+      "name": "Суммарно 53 теста, 0 errors, 0 failures, 3 skipped",
+      "status": "passed"
+    },
+    {
+      "name": "Три шаблонных copyright-теста пропущены существующими skip-декораторами",
+      "status": "skipped"
+    },
+    {
+      "name": "Xacro и check_urdf: связное дерево из 10 звеньев и 9 соединений",
+      "status": "passed"
+    },
+    {
+      "name": "Исходный опыт автора: transient_local exit=0, volatile timeout exit=124",
+      "status": "passed"
+    },
+    {
+      "name": "Дефект из коммита 71a696e: тот же parent-тест падает, check_urdf проходит, живой TF=(0.56,0,0.76)",
+      "status": "passed"
+    },
+    {
+      "name": "Исправленная модель: parent-тест проходит, check_urdf проходит, живой TF=(0.28,0,0.38)",
+      "status": "passed"
+    },
+    {
+      "name": "Автор подтвердил отображение модели с колёсами и устранение мерцания RViz",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "reproducer": "Коммит 71a696ee71a7970230438cf308c305f8aa1d9461: у lidar_joint parent заменён с base_link на camera_link при неизменном origin. Тест ожидаемого родителя падает, а check_urdf принимает дерево. base_link -> lidar_link становится (0.56, 0, 0.76). Дополнительный реальный повтор сохранён в evidence/pr06/defect-check.txt.",
+    "root_cause": "Origin выражает положение относительно выбранного parent. Камера уже смещена на (0.28,0,0.38) от корпуса; то же смещение лидара относительно камеры добавляется к первому. Структурная корректность дерева не доказывает соответствие геометрии замыслу.",
+    "proof_after": "В коммите 7b073e18901b6bae3c0c092caa4e9e2c8ac52737 восстановлен parent=base_link. Тест и check_urdf проходят; настоящий TF снова (0.28,0,0.38). Окончательный коммит реализации дополнительно содержит исправление оформления теста и CI."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "artifacts": {
+    "frames": "evidence/pr06/frames.md",
+    "model_check": "evidence/pr06/model-check.txt",
+    "qos": "evidence/pr06/tf-qos.txt",
+    "tests": "evidence/pr06/tests.txt",
+    "defect_check": "evidence/pr06/defect-check.txt",
+    "original_frame_graph": "evidence/pr06/frames_2026-10-23_00.58.06.gv"
+  },
+  "ai_used": true,
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2,
+    "basis": "Фактические затраты сообщил автор в переписке: 0 и 2. Время дополнительных автоматизированных проверок агента не включено."
+  }
+}
