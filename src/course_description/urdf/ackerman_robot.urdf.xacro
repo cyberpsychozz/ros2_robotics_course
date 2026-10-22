@@ -239,7 +239,7 @@
   </joint>
 
   <joint name="lidar_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="camera_link"/>
     <child link="lidar_link"/>
     <origin xyz="${sensor_x} 0 ${sensor_z}" rpy="0 0 0"/>
   </joint>
