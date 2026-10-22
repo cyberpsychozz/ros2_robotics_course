@@ -1,4 +1,4 @@
-name: PR05 evidence
+name: PR06 evidence
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         run: |
           test "$(uname -m)" = x86_64
           apt-get update
-          apt-get install -y --no-install-recommends ca-certificates curl xz-utils ros-jazzy-ament-mypy
+          apt-get install -y --no-install-recommends ca-certificates curl xz-utils ros-jazzy-ament-mypy ros-jazzy-xacro ros-jazzy-urdfdom
           curl -fsSLo /tmp/node.tar.xz https://nodejs.org/dist/v22.19.0/node-v22.19.0-linux-x64.tar.xz
           printf '%s  %s\n' c0649af18e6a24f6fe5535a3e86b341dd49a8e71117c8b68bde973ef834f16f2 /tmp/node.tar.xz | sha256sum -c -
           tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
@@ -32,14 +32,18 @@ jobs:
         run: |
           source /opt/ros/jazzy/setup.bash
           export ROS_DOMAIN_ID=174
-          colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup
+          colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup course_description
           source install/setup.bash
           test -f "$(ros2 pkg prefix turtle_bringup)/share/turtle_bringup/launch/sim.launch.py"
           test -f "$(ros2 pkg prefix course_bringup)/share/course_bringup/launch/sim.launch.py"
           test -f "$(ros2 pkg prefix course_bringup)/share/course_bringup/config/patrol.yaml"
           python3 -m py_compile src/turtle_bringup/launch/sim.launch.py
           python3 -m py_compile src/course_bringup/launch/sim.launch.py src/course_bringup/course_bringup/pose_relay.py src/course_bringup/course_bringup/pose_subscriber.py
-          colcon test --packages-select patrol course_bringup --event-handlers console_direct+
+          test -f "$(ros2 pkg prefix course_description)/share/course_description/urdf/ackerman_robot.urdf.xacro"
+          test -f "$(ros2 pkg prefix course_description)/share/course_description/launch/display.launch.py"
+          xacro src/course_description/urdf/ackerman_robot.urdf.xacro > /tmp/vehicle.urdf
+          check_urdf /tmp/vehicle.urdf
+          colcon test --packages-select patrol course_bringup course_description --event-handlers console_direct+
           colcon test-result --verbose
       - name: Download course kit
         shell: bash
@@ -48,6 +52,6 @@ jobs:
           printf '%s  %s\n' "$COURSE_KIT_SHA256" course-kit.tar.gz | sha256sum -c -
           mkdir -p .course-kit
           tar -xzf course-kit.tar.gz -C .course-kit
-      - name: Check PR05 evidence
+      - name: Check PR06 evidence
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
+        run: python3 .course-kit/v1/tools/check_practice.py PR06 --submission .

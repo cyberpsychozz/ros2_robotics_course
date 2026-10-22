@@ -274,3 +274,43 @@ ros2 bag play evidence/pr05/bag \
 ```bash
 python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
 ```
+
+## ПР06: описание робота и TF
+
+Пакет `course_description` содержит Xacro-модель, launch и настройки RViz.
+Локально используется ROS 2 Lyrical; CI проверяет модель на Jazzy.
+Установите зависимости своего дистрибутива: `xacro`, `robot_state_publisher`,
+`rviz2` и `urdfdom` (например, `ros-lyrical-xacro`). Из корня репозитория:
+
+```bash
+source /opt/ros/lyrical/setup.bash
+colcon build --symlink-install --packages-select course_description
+source install/setup.bash
+ros2 launch course_description display.launch.py
+```
+
+Запуск без окна: добавьте `rviz:=false`. Fixed Frame уже задан как `base_link`.
+Фиксированные сенсоры сразу доступны в `/tf_static`; их корпусов в исходной
+модели нет. Для отображения колёс в другом терминале с той же средой и доменом:
+
+```bash
+ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState \
+  '{header: auto, name: [front_left_steering_joint, front_right_steering_joint, front_left_wheel_joint, front_right_wheel_joint, rear_left_wheel_joint, rear_right_wheel_joint], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}'
+```
+
+Это показ позы, а не симуляция движения. Масштабирование HiDPI отключено только
+для RViz как обход мерцания Qt/Ogre при изменении размеров окна. Предел скорости
+руления по умолчанию 1 рад/с — допущение модели, параметр Xacro `steering_velocity`.
+
+```bash
+xacro src/course_description/urdf/ackerman_robot.urdf.xacro > /tmp/vehicle.urdf
+check_urdf /tmp/vehicle.urdf
+colcon test --packages-select course_description --event-handlers console_direct+
+colcon test-result --test-result-base build/course_description --verbose
+python3 .course-kit/v1/tools/check_practice.py PR06 --submission .
+```
+
+Таблица фреймов, сравнение дефекта и исправления, QoS и результаты проверок —
+в `evidence/pr06/`. Коммит `71a696e` сохраняет ошибочного родителя лидара,
+`7b073e1` — восстановление связи с `base_link`. Не запускайте одновременно
+несколько издателей одной и той же связи TF.
